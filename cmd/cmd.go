@@ -1250,6 +1250,12 @@ func showInfo(resp *api.ShowResponse, verbose bool, w io.Writer) error {
 		})
 	}
 
+	if resp.Template != "" {
+		tableRender("Template", func() [][]string {
+			return head(resp.Template, 2)
+		})
+	}
+
 	if resp.License != "" {
 		tableRender("License", func() [][]string {
 			return head(resp.License, 2)
