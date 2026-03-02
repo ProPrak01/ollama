@@ -236,6 +236,35 @@ Weigh anchor!
 		}
 	})
 
+	t.Run("template", func(t *testing.T) {
+		var b bytes.Buffer
+		if err := showInfo(&api.ShowResponse{
+			Details: api.ModelDetails{
+				Family:            "test",
+				ParameterSize:     "7B",
+				QuantizationLevel: "FP16",
+			},
+			Template: "{{ if .System }}system: {{ .System }}{{ end }}\n{{ if .Prompt }}user: {{ .Prompt }}{{ end }}\nassistant: {{ .Response }}",
+		}, false, &b); err != nil {
+			t.Fatal(err)
+		}
+
+		expect := "  Model\n" +
+			"    architecture    test    \n" +
+			"    parameters      7B      \n" +
+			"    quantization    FP16    \n" +
+			"\n" +
+			"  Template\n" +
+			"    {{ if .System }}system: {{ .System }}{{ end }}    \n" +
+			"    {{ if .Prompt }}user: {{ .Prompt }}{{ end }}      \n" +
+			"    ...                                               \n" +
+			"\n"
+
+		if diff := cmp.Diff(expect, b.String()); diff != "" {
+			t.Errorf("unexpected output (-want +got):\n%s", diff)
+		}
+	})
+
 	t.Run("license", func(t *testing.T) {
 		var b bytes.Buffer
 		license := "MIT License\nCopyright (c) Ollama\n"
